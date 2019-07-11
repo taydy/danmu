@@ -132,6 +132,7 @@ loop:
 	for {
 		select {
 		case <-c.closed:
+			logrus.Infof("crawler close!")
 			break loop
 		default:
 			b, code, err := c.Receive()
@@ -160,6 +161,7 @@ loop:
 	for {
 		select {
 		case <-c.closed:
+			c
 			break loop
 		case <-tick:
 			heartbeatMsg := NewMessage(nil, MsgToServer).
