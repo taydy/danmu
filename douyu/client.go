@@ -156,12 +156,12 @@ loop:
 }
 
 func (c *Client) heartbeat() {
-	tick := time.Tick(45 * time.Second)
+	tick := time.Tick(40 * time.Second)
 loop:
 	for {
 		select {
 		case <-c.closed:
-			c
+			logrus.Infof("heart beat close!")
 			break loop
 		case <-tick:
 			heartbeatMsg := NewMessage(nil, MsgToServer).
