@@ -3,7 +3,7 @@ package danmu
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"taydy/danmu/douyu"
+	"github.com/taydy/danmu/douyu"
 )
 
 func Work(roomId int) {

@@ -1,4 +1,4 @@
-module github/taydy/danmu
+module github.com/taydy/danmu
 
 go 1.12
 
