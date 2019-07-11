@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -252,7 +253,11 @@ func (msg *Message) GetIntField(key string) int {
 	if !ok {
 		return 0
 	}
-	return value.(int)
+	intValue, err := strconv.Atoi(value.(string))
+	if err != nil {
+		return 0
+	}
+	return intValue
 }
 
 // return body as string

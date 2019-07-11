@@ -26,28 +26,26 @@ func Work(roomId int) {
 func chatmsg(msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	uid := msg.GetStringField("uid")
-	level := msg.GetStringField("level")
+	level := msg.GetIntField("level")
 	nn := msg.GetStringField("nn")
 	txt := msg.GetStringField("txt")
-	logrus.Info(fmt.Sprintf("danmu -------> rid(%s) uid(%s) - level(%s) - nickname(%s) >>> content(%s)", rid, uid, level, nn, txt))
+	logrus.Info(fmt.Sprintf("danmu -------> rid(%s) uid(%s) - level(%d) - nickname(%s) >>> content(%s)", rid, uid, level, nn, txt))
 }
 
 func liwu(msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	uid := msg.GetStringField("uid")
-	level := msg.GetStringField("level")
-	str := msg.GetStringField("str")
+	level := msg.GetIntField("level")
 	nn := msg.GetStringField("nn")
 	gfid := msg.GetStringField("gfid")
 	gfcnt := msg.GetStringField("gfcnt")
-	logrus.Info(fmt.Sprintf("liwu --------> rid(%s) uid(%s) - level(%s) - nickname(%s) - str(%s) -  >>> gfid(%s) - gfcnt(%s)", rid, uid, level, nn, str, gfid, gfcnt))
+	logrus.Info(fmt.Sprintf("liwu --------> rid(%s) uid(%s) - level(%d) - nickname(%s) - >>> gfid(%s) - gfcnt(%s)", rid, uid, level, nn, gfid, gfcnt))
 }
 
 func userenter(msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	uid := msg.GetStringField("uid")
-	level := msg.GetStringField("level")
-	str := msg.GetStringField("str")
+	level := msg.GetIntField("level")
 	nn := msg.GetStringField("nn")
-	logrus.Info(fmt.Sprintf("uenter --------> rid(%s) uid(%s) - level(%s) - nickname(%s) - str(%s)", rid, uid, level, nn, str))
+	logrus.Info(fmt.Sprintf("uenter --------> rid(%s) uid(%s) - level(%d) - nickname(%s)", rid, uid, level, nn))
 }
