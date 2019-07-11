@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/taydy/danmu/douyu"
+	"time"
 )
 
 func Work(roomId int) {
@@ -20,6 +21,15 @@ func Work(roomId int) {
 		logrus.Error(fmt.Sprintf("Join room fail, %s", err.Error()))
 		return
 	}
+	go func(client *douyu.Client) {
+		tick := time.Tick(10 * time.Second)
+		for {
+			select {
+			case <- tick:
+				client.Close()
+			}
+		}
+	}(client)
 	client.Serve()
 }
 
