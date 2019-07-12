@@ -15,6 +15,10 @@ const (
 	MsgEnding     = int8(0)
 )
 
+const (
+	DouYuBarrageAddress = "openbarrage.douyutv.com:8601"
+)
+
 // 弹幕服务器端相应消息类型
 const (
 	MsgTypeLoginReq = "loginreq"
@@ -286,8 +290,8 @@ func (msg *Message) Encode() []byte {
 	return buffer.Bytes()
 }
 
-func (msg *Message) Decode(body []byte, mType int) *Message {
-	msg.headerType = int16(mType)
+func (msg *Message) Decode(body []byte, mType int16) *Message {
+	msg.headerType = mType
 	values := strings.Split(strings.Trim(string(body), "/"), "/")
 
 	for _, v := range values {

@@ -11,15 +11,19 @@ import (
 )
 
 type Client struct {
-	conn            net.Conn
+	conn   net.Conn
+	// Turn off heartbeat and barrage receiver
+	closed chan struct{}
+
+	// Message processor handler
 	HandlerRegister *HandlerRegister
-	closed          chan struct{}
 
 	rLock sync.Mutex
 	wLock sync.Mutex
 }
 
 // Connect to douyu barrage server
+// @Param connStr default "openbarrage.douyutv.com:8601"
 func Connect(connStr string, handlerRegister *HandlerRegister) (*Client, error) {
 	conn, err := net.Dial("tcp", connStr)
 	if err != nil {
@@ -28,9 +32,10 @@ func Connect(connStr string, handlerRegister *HandlerRegister) (*Client, error) 
 
 	logrus.Info(fmt.Sprintf("%s connected.", connStr))
 
-	// server connected
+	// init client
 	client := &Client{
-		conn: conn,
+		conn:   conn,
+		closed: make(chan struct{}),
 	}
 
 	if handlerRegister == nil {
@@ -51,7 +56,7 @@ func (c *Client) Send(b []byte) (int, error) {
 }
 
 // Receive message from server
-func (c *Client) Receive() ([]byte, int, error) {
+func (c *Client) Receive() ([]byte, int16, error) {
 	c.rLock.Lock()
 	defer c.rLock.Unlock()
 	buf := make([]byte, 512)
@@ -79,16 +84,16 @@ func (c *Client) Receive() ([]byte, int, error) {
 		buf = make([]byte, cl)
 	}
 	if _, err := io.ReadFull(c.conn, buf[:cl]); err != nil {
-		return buf, int(code), err
+		return buf, int16(code), err
 	}
 	// exclude ENDING
-	return buf[:cl-1], int(code), nil
+	return buf[:cl-1], int16(code), nil
 }
 
 // Close connnection
 func (c *Client) Close() error {
-	c.closed <- struct{}{} // receive
 	c.closed <- struct{}{} // heartbeat
+	c.closed <- struct{}{} // receive
 	return c.conn.Close()
 }
 
@@ -107,16 +112,23 @@ func (c *Client) JoinRoom(roomId int) error {
 	if err != nil {
 		return err
 	}
-
-	// TODO assert(code == MESSAGE_FROM_SERVER)
+	// Verify that the code is correct
+	if code != MsgFromServer {
+		logrus.Errorf("Msg code is abnormal, except %d, actual %d", MsgFromServer, code)
+		return fmt.Errorf("msg code is abnormal, except %d, actual %d", MsgFromServer, code)
+	}
 	logrus.Info(fmt.Sprintf("room %d joined", roomId))
+	logrus.Info(string(b))
 	loginRes := NewMessage(nil, MsgFromServer).Decode(b, code)
+
+	// The field live stat doesn't seem to work at the moment.
+	// Whether the anchor is on or off, it is 0.
 	logrus.Info(fmt.Sprintf("room %d live status %s", roomId, loginRes.GetStringField("live_stat")))
 
 	joinMessage := NewMessage(nil, MsgToServer).
 		SetField("type", "joingroup").
 		SetField("rid", roomId).
-		SetField("gid", "-9999")
+		SetField("gid", "-9999") // -9999 代表接收所有弹幕消息
 
 	logrus.Info(fmt.Sprintf("joining group %d...", -9999))
 	_, err = c.Send(joinMessage.Encode())
@@ -127,6 +139,7 @@ func (c *Client) JoinRoom(roomId int) error {
 	return nil
 }
 
+// start to get
 func (c *Client) Serve() {
 loop:
 	for {
@@ -148,7 +161,7 @@ loop:
 
 			}
 
-			// analize message
+			// decode message
 			msg := NewMessage(nil, MsgFromServer).Decode(b, code)
 			err, handlers := c.HandlerRegister.Get(msg.GetStringField("type"))
 			if err != nil {
@@ -162,6 +175,7 @@ loop:
 	}
 }
 
+// Betta server heartbeat monitoring time is 45 seconds，For insurance use for 40 seconds
 func (c *Client) heartbeat() {
 	tick := time.Tick(40 * time.Second)
 loop:
@@ -172,7 +186,7 @@ loop:
 			break loop
 		case <-tick:
 			heartbeatMsg := NewMessage(nil, MsgToServer).
-				SetField("type", "keeplive").
+				SetField("type", MsgTypeKeepAlive).
 				SetField("tick", time.Now().Unix())
 
 			_, err := c.Send(heartbeatMsg.Encode())

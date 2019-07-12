@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/taydy/danmu/douyu"
-	"time"
 )
 
-func Work(roomId int) {
-	client, err := douyu.Connect("openbarrage.douyutv.com:8601", nil)
+func GetClient(roomId int) (*douyu.Client, error) {
+	client, err := douyu.Connect(douyu.DouYuBarrageAddress, nil)
 	if err != nil {
 		logrus.Error(err)
-		return
+		return nil, err
 	}
 
 	_ = client.HandlerRegister.Add(douyu.MsgTypeChatMsg, douyu.Handler(chatmsg), douyu.MsgTypeChatMsg)
@@ -19,18 +18,17 @@ func Work(roomId int) {
 	_ = client.HandlerRegister.Add(douyu.MsgTypeUserEnter, douyu.Handler(userenter), douyu.MsgTypeUserEnter)
 	if err := client.JoinRoom(roomId); err != nil {
 		logrus.Error(fmt.Sprintf("Join room fail, %s", err.Error()))
-		return
+		return nil, err
 	}
-	go func(client *douyu.Client) {
-		tick := time.Tick(10 * time.Second)
-		for {
-			select {
-			case <- tick:
-				client.Close()
-			}
-		}
-	}(client)
-	client.Serve()
+
+	// 获取直播间详情
+	roomInfo, err := douyu.GetRoomInfo(roomId)
+	if err != nil {
+		logrus.Errorf("get room %d info error, %v", roomId, err)
+	}
+	logrus.Infof("room %d info : %+v", roomId, roomInfo)
+
+	return client, nil
 }
 
 func chatmsg(msg *douyu.Message) {
