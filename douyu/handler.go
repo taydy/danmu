@@ -141,7 +141,7 @@ func (hr *HandlerRegister) Dump() string {
 	str := "[plugins dump]\n"
 	for k, handles := range hr.hmap {
 		for _, v := range handles {
-			str += fmt.Sprintf("%d %s [%v]\n", k, v.getName(), v.enabled)
+			str += fmt.Sprintf("%s %s [%v]\n", k, v.getName(), v.enabled)
 		}
 	}
 	return str
