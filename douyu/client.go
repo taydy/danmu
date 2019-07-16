@@ -153,16 +153,10 @@ loop:
 				logrus.Error(err)
 				break loop
 			}
-			select {
-			case <-c.closed:
-				logrus.Infof("crawler close!")
-				break loop
-			default:
-
-			}
 
 			// decode message
 			msg := NewMessage(nil, MsgFromServer).Decode(b, code)
+
 			err, handlers := c.HandlerRegister.Get(msg.GetStringField("type"))
 			if err != nil {
 				logrus.Debug(err)

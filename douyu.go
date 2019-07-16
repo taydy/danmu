@@ -13,9 +13,10 @@ func GetClient(roomId int) (*douyu.Client, error) {
 		return nil, err
 	}
 
-	_ = client.HandlerRegister.Add(douyu.MsgTypeChatMsg, douyu.Handler(chatmsg), douyu.MsgTypeChatMsg)
-	_ = client.HandlerRegister.Add(douyu.MsgTypeDGB, douyu.Handler(liwu), douyu.MsgTypeDGB)
-	_ = client.HandlerRegister.Add(douyu.MsgTypeUserEnter, douyu.Handler(userenter), douyu.MsgTypeUserEnter)
+	_ = client.HandlerRegister.Add(douyu.MsgTypeChatMsg, douyu.Handler(chatMsg), douyu.MsgTypeChatMsg)
+	_ = client.HandlerRegister.Add(douyu.MsgTypeDGB, douyu.Handler(gift), douyu.MsgTypeDGB)
+	_ = client.HandlerRegister.Add(douyu.MsgTypeUserEnter, douyu.Handler(userEnter), douyu.MsgTypeUserEnter)
+	_ = client.HandlerRegister.Add(douyu.MsgTypeNoble, douyu.Handler(noble), douyu.MsgTypeNoble)
 	if err := client.JoinRoom(roomId); err != nil {
 		logrus.Error(fmt.Sprintf("Join room fail, %s", err.Error()))
 		return nil, err
@@ -31,7 +32,7 @@ func GetClient(roomId int) (*douyu.Client, error) {
 	return client, nil
 }
 
-func chatmsg(msg *douyu.Message) {
+func chatMsg(msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	uid := msg.GetStringField("uid")
 	level := msg.GetIntField("level")
@@ -40,20 +41,28 @@ func chatmsg(msg *douyu.Message) {
 	logrus.Info(fmt.Sprintf("danmu -------> rid(%s) uid(%s) - level(%d) - nickname(%s) >>> content(%s)", rid, uid, level, nn, txt))
 }
 
-func liwu(msg *douyu.Message) {
+func gift(msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	uid := msg.GetStringField("uid")
 	level := msg.GetIntField("level")
 	nn := msg.GetStringField("nn")
-	gfid := msg.GetStringField("gfid")
-	gfcnt := msg.GetStringField("gfcnt")
-	logrus.Info(fmt.Sprintf("liwu --------> rid(%s) uid(%s) - level(%d) - nickname(%s) - >>> gfid(%s) - gfcnt(%s)", rid, uid, level, nn, gfid, gfcnt))
+	gfId := msg.GetStringField("gfid")
+	gfCnt := msg.GetStringField("gfcnt")
+	logrus.Info(fmt.Sprintf("liwu --------> rid(%s) uid(%s) - level(%d) - nickname(%s) - >>> gfid(%s) - gfcnt(%s)", rid, uid, level, nn, gfId, gfCnt))
 }
 
-func userenter(msg *douyu.Message) {
+func userEnter(msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	uid := msg.GetStringField("uid")
 	level := msg.GetIntField("level")
 	nn := msg.GetStringField("nn")
 	logrus.Info(fmt.Sprintf("uenter --------> rid(%s) uid(%s) - level(%d) - nickname(%s)", rid, uid, level, nn))
+}
+
+func noble(msg *douyu.Message)  {
+	rid := msg.GetStringField("rid")
+	vn := msg.GetIntField("vn")
+	logrus.Info("---------------------------------------")
+	logrus.Info(msg.BodyString())
+	logrus.Infof(fmt.Sprintf("noble ---------> rid(%s) vn(%d)", rid, vn))
 }

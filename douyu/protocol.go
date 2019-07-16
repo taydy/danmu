@@ -203,6 +203,8 @@ const (
 	// nk    用户昵称
 	// rkt   top10 榜的类型 1-周榜 2-总榜 4-日榜
 	// rn    上升后的排名
+
+	MsgTypeNoble = "noble_num_info" // 房间贵族人数变动
 )
 
 type Message struct {

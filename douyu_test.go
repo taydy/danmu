@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func TestWork(t *testing.T) {
-	roomId := 606118
+func TestGetClient(t *testing.T) {
+	roomId := 24422
 	client, err := GetClient(roomId)
 	if err != nil {
 		t.Fatal(err)
