@@ -8,8 +8,8 @@ import (
 )
 
 func TestGetClient(t *testing.T) {
-	logrus.SetLevel(logrus.DebugLevel)
-	roomId := 99999
+	logrus.SetLevel(logrus.InfoLevel)
+	roomId := 475252
 	client, err := GetClient(roomId)
 	if err != nil {
 		t.Fatal(err)

@@ -6,17 +6,21 @@ import (
 	"github.com/sirupsen/logrus"
 	"io"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 )
 
 type Client struct {
-	conn   net.Conn
+	conn net.Conn
 	// Turn off heartbeat and barrage receiver
 	closed chan struct{}
 
 	// Message processor handler
 	HandlerRegister *HandlerRegister
+
+	// Anchor live broadcast information
+	roomInfo *RoomInfo
 
 	rLock sync.Mutex
 	wLock sync.Mutex
@@ -136,6 +140,19 @@ func (c *Client) JoinRoom(roomId int) error {
 		return err
 	}
 	logrus.Info(fmt.Sprintf("group %d joined", -9999))
+
+	// 获取直播间详情
+	if roomInfo, err := GetRoomInfo(roomId); err != nil {
+		logrus.Errorf("get room %d info error, %v", roomId, err)
+		roomInfo = &RoomInfo{
+			RoomId: strconv.Itoa(roomId),
+		}
+		c.roomInfo = roomInfo
+	} else {
+		logrus.Infof("room %d info : %+v", roomId, roomInfo)
+		c.roomInfo = roomInfo
+	}
+
 	return nil
 }
 
@@ -163,7 +180,7 @@ loop:
 				continue
 			}
 			for _, v := range handlers {
-				go v.Run(msg)
+				go v.Run(c.roomInfo, msg)
 			}
 		}
 	}

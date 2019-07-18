@@ -20,22 +20,17 @@ func GetClient(roomId int) (*douyu.Client, error) {
 	_ = client.HandlerRegister.Add(douyu.MsgTypeNoble, douyu.Handler(noble), douyu.MsgTypeNoble)
 	_ = client.HandlerRegister.Add(douyu.MsgTypeFrank, douyu.Handler(frank), douyu.MsgTypeFrank)
 	_ = client.HandlerRegister.Add(douyu.MsgTypeRSS, douyu.Handler(rss), douyu.MsgTypeRSS)
+	_ = client.HandlerRegister.Add(douyu.MsgTypeRnewbc, douyu.Handler(rnewbc), douyu.MsgTypeRnewbc)
+	_ = client.HandlerRegister.Add(douyu.MsgTypeAnbc, douyu.Handler(anbc), douyu.MsgTypeAnbc)
 	if err := client.JoinRoom(roomId); err != nil {
 		logrus.Error(fmt.Sprintf("Join room fail, %s", err.Error()))
 		return nil, err
 	}
 
-	// 获取直播间详情
-	roomInfo, err := douyu.GetRoomInfo(roomId)
-	if err != nil {
-		logrus.Errorf("get room %d info error, %v", roomId, err)
-	}
-	logrus.Infof("room %d info : %+v", roomId, roomInfo)
-
 	return client, nil
 }
 
-func chatMsg(msg *douyu.Message) {
+func chatMsg(roomInfo *douyu.RoomInfo, msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	uid := msg.GetStringField("uid")
 	level := msg.GetIntField("level")
@@ -47,7 +42,7 @@ func chatMsg(msg *douyu.Message) {
 	logrus.Info(fmt.Sprintf("danmu -------> rid(%s) uid(%s) - level(%d) - nl(%d) - nickname(%s) - sendTime(%s) >>> content(%s)", rid, uid, level, nl, nn, sendTime, txt))
 }
 
-func gift(msg *douyu.Message) {
+func gift(roomInfo *douyu.RoomInfo, msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	uid := msg.GetStringField("uid")
 	level := msg.GetIntField("level")
@@ -57,7 +52,7 @@ func gift(msg *douyu.Message) {
 	logrus.Info(fmt.Sprintf("liwu --------> rid(%s) uid(%s) - level(%d) - nickname(%s) - >>> gfid(%s) - gfcnt(%s)", rid, uid, level, nn, gfId, gfCnt))
 }
 
-func userEnter(msg *douyu.Message) {
+func userEnter(roomInfo *douyu.RoomInfo, msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	uid := msg.GetStringField("uid")
 	level := msg.GetIntField("level")
@@ -65,13 +60,13 @@ func userEnter(msg *douyu.Message) {
 	logrus.Info(fmt.Sprintf("uenter --------> rid(%s) uid(%s) - level(%d) - nickname(%s)", rid, uid, level, nn))
 }
 
-func noble(msg *douyu.Message) {
+func noble(roomInfo *douyu.RoomInfo, msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	vn := msg.GetIntField("vn")
 	logrus.Infof(fmt.Sprintf("noble ---------> rid(%s) vn(%d)", rid, vn))
 }
 
-func frank(msg *douyu.Message) {
+func frank(roomInfo *douyu.RoomInfo, msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	fc := msg.GetIntField("fc")
 	logrus.Info("---------------------------------------")
@@ -79,10 +74,42 @@ func frank(msg *douyu.Message) {
 	logrus.Infof(fmt.Sprintf("frank ---------> rid(%s) fc(%d)", rid, fc))
 }
 
-func rss(msg *douyu.Message) {
+func rss(roomInfo *douyu.RoomInfo, msg *douyu.Message) {
 	rid := msg.GetStringField("rid")
 	ss := msg.GetIntField("ss")
 	rt := msg.GetStringField("rt")
 	endTime := msg.GetIntField("endtime")
 	logrus.Infof(fmt.Sprintf("rss ---------> rid(%s) ss(%d) rt(%s) endtime(%d)", rid, ss, rt, endTime))
+}
+
+func rnewbc(roomInfo *douyu.RoomInfo, msg *douyu.Message) {
+	uid := msg.GetStringField("uid")
+	unk := msg.GetStringField("unk")
+	drid := msg.GetStringField("drid")
+	donk := msg.GetStringField("donk")
+	rid := msg.GetStringField("rid")
+	nl := msg.GetIntField("nl")
+
+	// 不是本直播间的贵族消息，不执行后续逻辑
+	//if roomInfo.RoomId != drid && roomInfo.RoomId != rid {
+	//	return
+	//}
+	logrus.Info(msg.BodyString())
+	logrus.Infof(fmt.Sprintf("rnewbc ---------> uid(%s) unk(%s) drid(%s) rid(%s) donk(%s) nl(%d)", uid, unk, drid, rid, donk, nl))
+}
+
+func anbc(roomInfo *douyu.RoomInfo, msg *douyu.Message) {
+	uid := msg.GetStringField("uid")
+	unk := msg.GetStringField("unk")
+	drid := msg.GetStringField("drid")
+	donk := msg.GetStringField("donk")
+	rid := msg.GetStringField("rid")
+	nl := msg.GetIntField("nl")
+
+	// 不是本直播间的贵族消息，不执行后续逻辑
+	//if roomInfo.RoomId != drid && roomInfo.RoomId != rid {
+	//	return
+	//}
+	logrus.Info(msg.BodyString())
+	logrus.Infof(fmt.Sprintf("anbc ---------> uid(%s) unk(%s) drid(%s) rid(%s) donk(%s) nl(%d)", uid, unk, drid, rid, donk, nl))
 }

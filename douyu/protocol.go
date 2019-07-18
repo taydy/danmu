@@ -216,7 +216,7 @@ const (
 	MsgTypeFrank = "frank" // 粉丝排行榜消息
 	// 房间内粉丝盘行帮发生变动
 	// 字段说明
-	// type  表示为“房间内粉丝盘行帮发生变动”,固定为 frank
+	// type  表示为“房间内粉丝排行榜发生变动”,固定为 frank
 	// rid   房间 id
 	// gid   弹幕分组 id
 	// fc	 粉丝总人数，此处的总人数需要结合字体文件来解析出真正的粉丝总人数，参考 https://github.com/fonttools/fonttools
@@ -224,6 +224,26 @@ const (
 	// bnn	 徽章昵称
 	// ver	 榜单版本号
 	// list	 榜单结构
+
+	MsgTypeAnbc = "anbc" // 粉丝开通贵族
+	// 某个房间内粉丝开通了贵族
+	// 字段说明
+	// type  表示为“某个房间内粉丝开通了贵族”,固定为 anbc
+	// uid   用户 ID
+	// unk	 用户昵称
+	// drid  主播房间号
+	// donk	 主播昵称
+	// nl	 贵族类型，具体信息参照 https://www.douyu.com/noble/confignw 返回结果
+
+	MsgTypeRnewbc = "rnewbc" // 粉丝续费贵族
+	// 某个房间内粉丝续费了贵族
+	// 字段说明
+	// type  表示为“某个房间内粉丝续费了贵族”,固定为 rnewbc
+	// uid   用户 ID
+	// unk	 用户昵称
+	// drid  主播房间号
+	// donk	 主播昵称
+	// nl	 贵族类型，具体信息参照 https://www.douyu.com/noble/confignw 返回结果
 )
 
 type Message struct {

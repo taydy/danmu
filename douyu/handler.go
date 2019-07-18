@@ -6,7 +6,7 @@ import (
 )
 
 // Handler: message function wrapper
-type Handler func(*Message)
+type Handler func(roomInfo *RoomInfo, msg *Message)
 
 // HandlerWrapper: message handler wrapper
 type HandlerWrapper struct {
@@ -16,9 +16,9 @@ type HandlerWrapper struct {
 }
 
 // Run: message handler callback
-func (s *HandlerWrapper) Run(msg *Message) {
+func (s *HandlerWrapper) Run(roomInfo *RoomInfo, msg *Message) {
 	if s.enabled {
-		s.handle(msg)
+		s.handle(roomInfo, msg)
 	}
 }
 
