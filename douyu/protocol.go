@@ -60,7 +60,9 @@ const (
 	//     nn               发送者昵称
 	//     txt              弹幕文本内容
 	//     cid              弹幕唯一 ID
+	//	   cst				弹幕发送时间戳，单位毫秒
 	//     level            用户等级
+	//	   nl				贵族等级
 	//     gt               礼物头衔:默认值 0(表示没有头衔)
 	//     col              颜色:默认值 0(表示默认颜色弹幕)
 	//     ct               客户端类型:默认值 0(表示 web 用户)
@@ -205,6 +207,23 @@ const (
 	// rn    上升后的排名
 
 	MsgTypeNoble = "noble_num_info" // 房间贵族人数变动
+	// 房间内贵族人数变动
+	// 字段说明
+	// type  表示为“房间内贵族人数变动”,固定为 noble_num_info
+	// rid   房间 id
+	// vn	 最新的贵族数量
+
+	MsgTypeFrank = "frank" // 粉丝排行榜消息
+	// 房间内粉丝盘行帮发生变动
+	// 字段说明
+	// type  表示为“房间内粉丝盘行帮发生变动”,固定为 frank
+	// rid   房间 id
+	// gid   弹幕分组 id
+	// fc	 粉丝总人数，此处的总人数需要结合字体文件来解析出真正的粉丝总人数，参考 https://github.com/fonttools/fonttools
+	// ci	 粉丝总人数对应的字体文件名，真实字体文件为 'https://shark.douyucdn.cn/app/douyu/res/font/'+ ci + '.woff'
+	// bnn	 徽章昵称
+	// ver	 榜单版本号
+	// list	 榜单结构
 )
 
 type Message struct {

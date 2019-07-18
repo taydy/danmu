@@ -159,7 +159,7 @@ loop:
 
 			err, handlers := c.HandlerRegister.Get(msg.GetStringField("type"))
 			if err != nil {
-				logrus.Debug(err)
+				logrus.Debugf(msg.BodyString())
 				continue
 			}
 			for _, v := range handlers {
