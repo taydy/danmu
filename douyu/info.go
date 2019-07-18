@@ -34,6 +34,16 @@ type RoomInfo struct {
 	Gift        []*GiftMapping `json:"gift"`        // 直播间礼物信息列表
 }
 
+type Noble struct {
+	Level           int     `json:"level"`             // id
+	NobleName       string  `json:"noble_name"`        // 贵族名称
+	IsOnSell        int     `json:"is_on_sell"`        // 是否在售
+	FirstOpenPrice  float64 `json:"first_open_price"`  // 首次开通价格
+	FirstRemandGold float64 `json:"first_remand_gold"` // 首次开通返还贵族鱼翅数量
+	RenewPrice      float64 `json:"renew_price"`       // 续费价格
+	RenewRemandGold float64 `json:"renew_remand_gold"` // 续费返还贵族鱼翅数量
+}
+
 // Get public gift mapping
 func GetCommonGiftMapping() ([]*GiftMapping, error) {
 	serviceURL := "https://webconf.douyucdn.cn/resource/common/prop_gift_list/prop_gift_config.json"
@@ -108,4 +118,38 @@ func GetRoomInfo(roomId int) (*RoomInfo, error) {
 	}
 
 	return roomInfoResp.Data, nil
+}
+
+func GetNobleInfo() ([]*Noble, error) {
+	serviceURL := "https://www.douyu.com/noble/confignw"
+	resp, err := http.Get(serviceURL)
+	if err != nil {
+		logrus.Errorf("get noble info by error, %v", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		errBody, _ := ioutil.ReadAll(resp.Body)
+		logrus.Errorf("get noble info by error, %v", string(errBody))
+		return nil, fmt.Errorf("get noble info by error, %v", string(errBody))
+	}
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
+	type NobleInfoResp struct {
+		Error int      `json:"error"`
+		Data  []*Noble `json:"data"`
+	}
+
+	nobleInfoResp := &NobleInfoResp{}
+	if err := json.Unmarshal([]byte(respBody), nobleInfoResp); err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
+	return nobleInfoResp.Data, nil
 }

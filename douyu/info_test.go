@@ -20,3 +20,7 @@ func TestGetRoomInfo(t *testing.T) {
 	}
 	t.Log(roomInfo)
 }
+
+func TestGetNobleInfo(t *testing.T) {
+	t.Log(GetNobleInfo())
+}
