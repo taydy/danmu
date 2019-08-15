@@ -19,6 +19,9 @@ type Client struct {
 	// Message processor handler
 	HandlerRegister *HandlerRegister
 
+	// heart beat failed handler
+	HeartBeatErrHandler func(roomInfo *RoomInfo)
+
 	// Anchor live broadcast information
 	roomInfo *RoomInfo
 
@@ -203,6 +206,9 @@ loop:
 			_, err := c.Send(heartbeatMsg.Encode())
 			if err != nil {
 				logrus.Error("heartbeat failed, " + err.Error())
+				if c.HeartBeatErrHandler != nil {
+					c.HeartBeatErrHandler(c.roomInfo)
+				}
 			}
 		}
 	}
