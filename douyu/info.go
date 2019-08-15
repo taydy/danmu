@@ -86,19 +86,19 @@ func GetCommonGiftMapping() ([]*GiftMapping, error) {
 }
 
 // Get live room gift information
-func GetRoomInfo(roomId int) (*RoomInfo, error) {
-	serviceURL := fmt.Sprintf("http://open.douyucdn.cn/api/RoomApi/room/%d", roomId)
+func GetRoomInfo(roomId string) (*RoomInfo, error) {
+	serviceURL := fmt.Sprintf("http://open.douyucdn.cn/api/RoomApi/room/%s", roomId)
 	resp, err := http.Get(serviceURL)
 	if err != nil {
-		logrus.Errorf("get gift mapping by room %d error, %v", roomId, err)
+		logrus.Errorf("get gift mapping by room %s error, %v", roomId, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		errBody, _ := ioutil.ReadAll(resp.Body)
-		logrus.Errorf("get gift mapping by room %d error, %v", roomId, string(errBody))
-		return nil, fmt.Errorf("get gift mapping by room %d error, %v", roomId, string(errBody))
+		logrus.Errorf("get gift mapping by room %s error, %v", roomId, string(errBody))
+		return nil, fmt.Errorf("get gift mapping by room %s error, %v", roomId, string(errBody))
 	}
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"io"
 	"net"
-	"strconv"
 	"sync"
 	"time"
 )
@@ -105,12 +104,12 @@ func (c *Client) Close() error {
 }
 
 // JoinRoom
-func (c *Client) JoinRoom(roomId int) error {
+func (c *Client) JoinRoom(roomId string) error {
 	loginMessage := NewMessage(nil, MsgToServer).
 		SetField("type", MsgTypeLoginReq).
 		SetField("roomid", roomId)
 
-	logrus.Info(fmt.Sprintf("joining room %d...", roomId))
+	logrus.Info(fmt.Sprintf("joining room %s...", roomId))
 	if _, err := c.Send(loginMessage.Encode()); err != nil {
 		return err
 	}
@@ -124,13 +123,13 @@ func (c *Client) JoinRoom(roomId int) error {
 		logrus.Errorf("Msg code is abnormal, except %d, actual %d", MsgFromServer, code)
 		return fmt.Errorf("msg code is abnormal, except %d, actual %d", MsgFromServer, code)
 	}
-	logrus.Info(fmt.Sprintf("room %d joined", roomId))
+	logrus.Info(fmt.Sprintf("room %s joined", roomId))
 	logrus.Info(string(b))
 	loginRes := NewMessage(nil, MsgFromServer).Decode(b, code)
 
 	// The field live stat doesn't seem to work at the moment.
 	// Whether the anchor is on or off, it is 0.
-	logrus.Info(fmt.Sprintf("room %d live status %s", roomId, loginRes.GetStringField("live_stat")))
+	logrus.Info(fmt.Sprintf("room %s live status %s", roomId, loginRes.GetStringField("live_stat")))
 
 	joinMessage := NewMessage(nil, MsgToServer).
 		SetField("type", "joingroup").
@@ -146,13 +145,13 @@ func (c *Client) JoinRoom(roomId int) error {
 
 	// 获取直播间详情
 	if roomInfo, err := GetRoomInfo(roomId); err != nil {
-		logrus.Errorf("get room %d info error, %v", roomId, err)
+		logrus.Errorf("get room %s info error, %v", roomId, err)
 		roomInfo = &RoomInfo{
-			RoomId: strconv.Itoa(roomId),
+			RoomId: roomId,
 		}
 		c.roomInfo = roomInfo
 	} else {
-		logrus.Infof("room %d info : %+v", roomId, roomInfo)
+		logrus.Infof("room %s info : %+v", roomId, roomInfo)
 		c.roomInfo = roomInfo
 	}
 

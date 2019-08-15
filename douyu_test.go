@@ -9,10 +9,10 @@ import (
 
 func TestGetClient(t *testing.T) {
 	logrus.SetLevel(logrus.DebugLevel)
-	jobChan := make(chan int, 1000)
+	jobChan := make(chan string, 1000)
 	var client *douyu.Client
 	var err error
-	jobChan <- 1300804
+	jobChan <- "1300804"
 	for {
 		select {
 		case roomId := <- jobChan:

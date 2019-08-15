@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func GetClient(roomId int) (*douyu.Client, error) {
+func GetClient(roomId string) (*douyu.Client, error) {
 	client, err := douyu.Connect(douyu.DouYuBarrageAddress, nil)
 	if err != nil {
 		logrus.Error(err)
